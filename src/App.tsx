@@ -1,5 +1,3 @@
-import './App.css'
-
 import { useState, useEffect, useRef, useCallback } from 'react'
 
 // i18n
@@ -39,7 +37,6 @@ import { Input } from './components/ui/input';
 
 // lib & utils
 import * as LosslessJSON from 'lossless-json'
-import { analyzeFile, writeFile } from './lib/save';
 
 // Constants
 import { ENTRIES } from './consts/entries'
@@ -174,7 +171,7 @@ function App() {
             const entryValue = entries[entry.id] ?? entry.defaultValue;
             let dictValue = {};
             if (!(entry.id in DEFAULT_WORLDOPTION.gvas.
-                    root.properties.OptionWorldData.Struct.value.Struct.Settings.Struct.value.Struct)) {
+                root.properties.OptionWorldData.Struct.value.Struct.Settings.Struct.value.Struct)) {
                 return;
             }
             if (entryValue === entry.defaultValue) {
@@ -245,7 +242,7 @@ function App() {
         Object.entries(gvasJson).forEach(([key, value]) => {
             if (key in ENTRIES) {
                 const entry = ENTRIES[key];
-                const valueRecord = value as Record<string, {"value": string}>;
+                const valueRecord = value as Record<string, { "value": string }>;
                 let entryValue: number | boolean | string | undefined = undefined;
                 if ("Enum" in valueRecord) {
                     entryValue = valueRecord.Enum.value.split("::")[1];
@@ -263,47 +260,11 @@ function App() {
     }
 
     const openFile = async (f: File) => {
-        const result = await analyzeFile(f, (e) => {
-            console.error(e);
-            toast.error(t('toast.invalidFile'), {
-                description: t('toast.invalidFileDescription'),
-            })
-        }).catch((e) => {
-            console.error(e);
-        });
-        if (!result) {
-            return;
-        }
-        // console.log(result);
-        // console.log('magic: ' + result.magic);
-        const gvas: Gvas = result.gvas ?? DEFAULT_WORLDOPTION.gvas;
-        toast.success(t('toast.savFileLoaded'), {
-            description: t('toast.savFileLoadedDescription'),
-        })
-        deserializeEntriesFromGvasJson(gvas);
+
     }
 
     const saveFile = () => {
-        const gvasToSave: Gvas = LosslessJSON.parse(LosslessJSON.stringify(DEFAULT_WORLDOPTION.gvas)!) as Gvas;
-        gvasToSave.root.properties.OptionWorldData.Struct.value.Struct.Settings.Struct.value.Struct = serializeEntriesToGvasJson();
-        writeFile(
-            {
-                magic: 828009552,
-                gvas: gvasToSave,
-            },
-            'WorldOption.sav',
-            () => {
-                toast.success(t('toast.saved'), {
-                    description: t('toast.savedDescription'),
-                })
-            },
-            (e) => {
-                console.error(e);
-                toast.error(t('toast.saveFailed'), {
-                    description: t('toast.saveFailedDescription'),
-                })
-            },
-        );
+
     }
 
     const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -333,7 +294,7 @@ function App() {
         });
     };
 
-    const genInput = (id: string, disabled=false) => {
+    const genInput = (id: string, disabled = false) => {
         const entry = ENTRIES[id];
         if (!entry) {
             return null;
